@@ -25,7 +25,95 @@
 
 ---
 
+## ⚙️ Configuração da API do Trello
 
+Antes de executar o projeto, você precisa obter as credenciais da API do Trello para que o script consiga criar e atualizar cartões. Siga os passos abaixo:
+
+### 1. Obter a Chave da API (TRELLO_KEY)
+- Acesse: [https://trello.com/app-key](https://trello.com/app-key)
+- Faça login com sua conta Trello.
+- Copie a chave exibida (API Key).
+
+### 2. Gerar o Token de Acesso (TRELLO_TOKEN)
+- Na mesma página, clique no link para gerar o token.
+- Autorize o acesso para o seu aplicativo.
+- Copie o token gerado.
+
+### 3. Obter o ID do Quadro (TRELLO_BOARD_ID)
+- Abra o quadro do Trello que você vai usar.
+- Na URL, copie o trecho que aparece após `/b/`. Exemplo:
+```
+
+[https://trello.com/b/abcdefgh/nome-do-quadro](https://trello.com/b/abcdefgh/nome-do-quadro)
+
+```
+Aqui, `abcdefgh` é o seu BOARD_ID.
+
+### 4. Obter o ID da Lista (TRELLO_LIST_ID)
+- Para listar as listas do quadro, faça uma requisição à API:
+
+```
+
+GET [https://api.trello.com/1/boards/{BOARD\_ID}/lists?key={TRELLO\_KEY}\&token={TRELLO\_TOKEN}](https://api.trello.com/1/boards/{BOARD_ID}/lists?key={TRELLO_KEY}&token={TRELLO_TOKEN})
+
+````
+
+- Essa chamada retorna um JSON com as listas e seus IDs.
+- Copie o ID da lista onde deseja criar os cartões.
+
+---
+
+## 💡 Usando Variáveis de Ambiente
+
+É recomendado não deixar suas chaves diretamente no código. Use variáveis de ambiente para armazenar essas informações com segurança.
+
+### Exemplo de variáveis no Linux/macOS (bash):
+
+```bash
+export TRELLO_KEY="sua_chave_aqui"
+export TRELLO_TOKEN="seu_token_aqui"
+export TRELLO_BOARD_ID="seu_board_id"
+export TRELLO_LIST_ID="sua_list_id"
+````
+
+### Exemplo no Windows PowerShell:
+
+```powershell
+setx TRELLO_KEY "sua_chave_aqui"
+setx TRELLO_TOKEN "seu_token_aqui"
+setx TRELLO_BOARD_ID "seu_board_id"
+setx TRELLO_LIST_ID "sua_list_id"
+```
+
+### Como usar no código (Node.js):
+
+```javascript
+const TRELLO_KEY = process.env.TRELLO_KEY;
+const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
+const BOARD_ID = process.env.TRELLO_BOARD_ID;
+const LIST_ID = process.env.TRELLO_LIST_ID;
+```
+
+---
+
+## 📝 Arquivo `.env` (recomendado)
+
+Você pode criar um arquivo `.env` para armazenar essas variáveis localmente. Use o pacote `dotenv` para carregar:
+
+**.env**
+
+```
+TRELLO_KEY=sua_chave_aqui
+TRELLO_TOKEN=seu_token_aqui
+TRELLO_BOARD_ID=seu_board_id
+TRELLO_LIST_ID=sua_list_id
+```
+
+No código, carregue assim:
+
+```javascript
+require('dotenv').config();
+```
 
 ---
 
