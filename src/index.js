@@ -1,9 +1,12 @@
-require('dotenv').config();
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const axios = require('axios');
-const FormData = require('form-data');
-const qrcode = require('qrcode-terminal');
+// Importando bibliotecas
+import config from '../config/env.js';
+import wweb from 'whatsapp-web.js';
+import axios from 'axios';
+import FormData from 'form-data';
+import qrcode from 'qrcode-terminal';
 
+// Configuração do cliente WhatsApp
+const { Client, LocalAuth } = wweb;
 const client = new Client({
   authStrategy: new LocalAuth()
 });
@@ -53,11 +56,11 @@ function analisarMensagem(texto) {
 async function buscarIdEtiqueta(nomeEtiqueta) {
   try {
     const res = await axios.get(
-      `https://api.trello.com/1/boards/${process.env.TRELLO_BOARD_ID}/labels`,
+      `https://api.trello.com/1/boards/${config.trello.boardId}/labels`,
       {
         params: {
-          key: process.env.TRELLO_KEY,
-          token: process.env.TRELLO_TOKEN
+          key: config.trello.key,
+          token: config.trello.token
         }
       }
     );
@@ -118,9 +121,9 @@ client.on('message', async msg => {
           const cardParams = {
             name: session.text,
             desc: 'Solicitação de autorização de dispositivo',
-            idList: process.env.TRELLO_LIST_ID,
-            key: process.env.TRELLO_KEY,
-            token: process.env.TRELLO_TOKEN
+            idList: config.trello.listId,
+            key: config.trello.key,
+            token: config.trello.token,
           };
 
           if (idEtiqueta) cardParams.idLabels = idEtiqueta;
@@ -138,8 +141,8 @@ client.on('message', async msg => {
             await axios.post(`https://api.trello.com/1/cards/${cardId}/attachments`, form, {
               headers: { ...form.getHeaders() },
               params: {
-                key: process.env.TRELLO_KEY,
-                token: process.env.TRELLO_TOKEN
+                key: config.trello.key,
+                token: config.trello.token,
               }
             });
           }
@@ -179,4 +182,5 @@ client.on('disconnected', reason => {
   console.log('🔌 Desconectado:', reason);
 });
 
+console.log('🔄 Inicializando cliente WhatsApp...');
 client.initialize();
