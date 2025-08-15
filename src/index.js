@@ -33,10 +33,22 @@ function analisarMensagem(texto) {
       }
     }
 
-    // Conta com ou sem rótulo
-    if (!conta && (/conta|numero/.test(linha) || /^\d{8,12}$/.test(linha))) {
+// Conta com ou sem rótulo
+    if (
+      !conta &&
+      (
+        /conta|numero/.test(linha) ||
+        /^\d{8,12}$/.test(linha) ||
+        // Aceita formatos de telefone comuns
+        /^(\(?\d{2}\)?\s?)?(\d{4,5}[-\s]?\d{4})$/.test(linha)
+      )
+    ) {
       const contaTexto = linha.replace(/(conta|numero)[:\-]?\s*/i, '').trim();
-      if (/^\d{8,12}$/.test(contaTexto)) conta = contaTexto;
+      // Aceita número puro, telefone com ou sem DDD, com hífen, espaço ou parênteses
+      if (
+        /^\d{8,12}$/.test(contaTexto) ||
+        /^(\(?\d{2}\)?\s?)?(\d{4,5}[-\s]?\d{4})$/.test(contaTexto)
+      ) conta = contaTexto;
     }
 
     // CPF com ou sem rótulo
