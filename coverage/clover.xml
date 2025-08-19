@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1755632124679" clover="3.2.0">
+  <project timestamp="1755632124679" name="All files">
+    <metrics statements="71" coveredstatements="40" conditionals="63" coveredconditionals="42" methods="13" coveredmethods="10" elements="147" coveredelements="92" complexity="0" loc="71" ncloc="71" packages="5" files="6" classes="6"/>
+    <package name="config">
+      <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="env.js" path="C:\Users\Lucas\Documents\Meu\DEV\zap_flow_project\config\env.js">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="4" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.bot">
+      <metrics statements="22" coveredstatements="7" conditionals="18" coveredconditionals="5" methods="1" coveredmethods="1"/>
+      <file name="messageHandler.js" path="C:\Users\Lucas\Documents\Meu\DEV\zap_flow_project\src\bot\messageHandler.js">
+        <metrics statements="22" coveredstatements="7" conditionals="18" coveredconditionals="5" methods="1" coveredmethods="1"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="12" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="17" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="27" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="30" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="37" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.sessions">
+      <metrics statements="7" coveredstatements="7" conditionals="6" coveredconditionals="4" methods="3" coveredmethods="3"/>
+      <file name="sessionManager.js" path="C:\Users\Lucas\Documents\Meu\DEV\zap_flow_project\src\sessions\sessionManager.js">
+        <metrics statements="7" coveredstatements="7" conditionals="6" coveredconditionals="4" methods="3" coveredmethods="3"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="4" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="12" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="15" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.trello">
+      <metrics statements="20" coveredstatements="4" conditionals="4" coveredconditionals="2" methods="5" coveredmethods="2"/>
+      <file name="api.js" path="C:\Users\Lucas\Documents\Meu\DEV\zap_flow_project\src\trello\api.js">
+        <metrics statements="14" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="4" coveredmethods="2"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="19" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+      </file>
+      <file name="cardBuilder.js" path="C:\Users\Lucas\Documents\Meu\DEV\zap_flow_project\src\trello\cardBuilder.js">
+        <metrics statements="6" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="15" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.utils">
+      <metrics statements="21" coveredstatements="21" conditionals="35" coveredconditionals="31" methods="4" coveredmethods="4"/>
+      <file name="parser.js" path="C:\Users\Lucas\Documents\Meu\DEV\zap_flow_project\src\utils\parser.js">
+        <metrics statements="21" coveredstatements="21" conditionals="35" coveredconditionals="31" methods="4" coveredmethods="4"/>
+        <line num="3" count="6" type="stmt"/>
+        <line num="4" count="14" type="stmt"/>
+        <line num="6" count="8" type="stmt"/>
+        <line num="8" count="6" type="stmt"/>
+        <line num="9" count="6" type="stmt"/>
+        <line num="10" count="6" type="stmt"/>
+        <line num="12" count="6" type="stmt"/>
+        <line num="14" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="5" type="stmt"/>
+        <line num="19" count="13" type="cond" truecount="3" falsecount="1"/>
+        <line num="20" count="5" type="stmt"/>
+        <line num="25" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="36" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="3" type="stmt"/>
+        <line num="43" count="14" type="cond" truecount="5" falsecount="0"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="45" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="49" count="6" type="cond" truecount="4" falsecount="0"/>
+        <line num="50" count="6" type="cond" truecount="4" falsecount="0"/>
+        <line num="52" count="6" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

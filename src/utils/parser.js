@@ -11,7 +11,10 @@ function analyseMessage(texto) {
 
   for (const linha of linhas) {
     // Nome com ou sem rótulo
-    if (!nome && (/nome/.test(linha) || /^[a-zà-ÿ\s]{5,}$/.test(linha))) {
+    if (
+      !nome &&
+      !/autorizar dispositivo/.test(linha) &&
+      (/nome/.test(linha) || /^[a-zà-ÿ\s]{5,}$/.test(linha))) {
       const partes = linha.replace(/nome[:\-]?\s*/i, '').trim().split(/\s+/);
       if (partes.length >= 2 && partes.every(p => isNaN(p))) {
         nome = partes.join(' ');
@@ -43,8 +46,8 @@ function analyseMessage(texto) {
     }
   }
 
-  const valido = temTitulo && nome && conta && cpf;
-  const incompleto = nome && conta && cpf && !temTitulo;
+  const valido = !!(temTitulo && nome && conta && cpf);
+  const incompleto = !!(nome && conta && cpf && !temTitulo);
 
   return { valido, incompleto, nome, conta, cpf };
 }
