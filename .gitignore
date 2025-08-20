@@ -15,5 +15,8 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Ignorar relatórios de cobertura de testes
+/coverage
+
 # Outros
 dist/
