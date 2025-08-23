@@ -1,5 +1,6 @@
 // tests/cardBuilder.test.js
 import { createCardWithImages } from '../src/trello/cardBuilder.js';
+import {describe, it, expect, beforeEach, jest} from '@jest/globals'
 import * as api from '../src/trello/api.js';
 import config from '../config/env.js';
 

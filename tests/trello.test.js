@@ -1,6 +1,7 @@
-jest.mock('axios');
-import axios from 'axios';
+import {describe, it, expect, jest} from '@jest/globals'
 import { searchTagId } from '../src/trello/api.js';
+import axios from 'axios';
+jest.mock('axios');
 
 describe('Integração com Trello', () => {
   it('retorna ID da etiqueta correta', async () => {

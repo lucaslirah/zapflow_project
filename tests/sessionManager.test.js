@@ -1,4 +1,5 @@
 import { getSession, updateSession, clearSession } from '../src/sessions/sessionManager.js';
+import {describe, test, expect, beforeEach} from '@jest/globals'
 
 describe('sessionManager', () => {
   const sender = '99999999999@c.us';

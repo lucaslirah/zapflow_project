@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import {describe, test, expect, beforeEach, jest} from '@jest/globals'
 import handleMessage from '../src/bot/messageHandler.js';
 import * as parser from '../src/utils/parser.js';
 import * as sessionManager from '../src/sessions/sessionManager.js';
