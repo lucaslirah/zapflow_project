@@ -1,21 +1,14 @@
-import config from '../../config/env.js';
 import axios from 'axios';
-import FormData from 'form-data';
 
-// Busca etiqueta no Trello
-async function searchTagId(nomeEtiqueta) {
+const TRELLO_BASE = 'https://api.trello.com/1';
+
+export async function searchTagId(tagName, { boardId, key, token }) {
   try {
-    const res = await axios.get(
-      `https://api.trello.com/1/boards/${config.trello.boardId}/labels`,
-      {
-        params: {
-          key: config.trello.key,
-          token: config.trello.token
-        }
-      }
-    );
+    const res = await axios.get(`${TRELLO_BASE}/boards/${boardId}/labels`, {
+      params: { key, token }
+    });
 
-    const etiqueta = res.data.find(label => label.name.toLowerCase() === nomeEtiqueta.toLowerCase());
+    const etiqueta = res.data.find(label => label.name.toLowerCase() === tagName.toLowerCase());
     return etiqueta ? etiqueta.id : null;
   } catch (err) {
     console.error('Erro ao buscar etiquetas:', err);
@@ -23,10 +16,9 @@ async function searchTagId(nomeEtiqueta) {
   }
 }
 
-// Cria cartão no Trello
-async function createCard(params) {
+export async function createCard(params) {
   try {
-    const res = await axios.post('https://api.trello.com/1/cards', null, { params });
+    const res = await axios.post(`${TRELLO_BASE}/cards`, null, { params });
     return res.data;
   } catch (err) {
     console.error('Erro ao criar cartão:', err);
@@ -34,25 +26,21 @@ async function createCard(params) {
   }
 }
 
-// Anexa imagem ao cartão
-async function attachImageToCard(cardId, media) {
+export async function attachImageToCard(cardId, media, { key, token }) {
+  const FormData = (await import('form-data')).default;
   const form = new FormData();
   form.append('file', Buffer.from(media.data, 'base64'), {
     filename: 'imagem.jpg',
     contentType: media.mimetype
   });
 
-  await axios.post(`https://api.trello.com/1/cards/${cardId}/attachments`, form, {
-    headers: { ...form.getHeaders() },
-    params: {
-      key: config.trello.key,
-      token: config.trello.token,
-    }
-  });
-}
-
-export {
-    searchTagId,
-    createCard,
-    attachImageToCard
+  try {
+    await axios.post(`${TRELLO_BASE}/cards/${cardId}/attachments`, form, {
+      headers: form.getHeaders(),
+      params: { key, token }
+    });
+  } catch (err) {
+    console.error('Erro ao anexar imagem:', err);
+    throw err;
+  }
 }
