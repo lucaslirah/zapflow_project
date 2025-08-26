@@ -121,28 +121,28 @@ describe('messageHandler', () => {
 
   expect(mockMsg.reply).not.toHaveBeenCalled(); // não deve responder
   expect(sessionManager.updateSession).not.toHaveBeenCalled();
-});
-
-test('ignora mídia se tipo não for imagem', async () => {
-  const fakeMedia = {
-    mimetype: 'application/pdf', // tipo inválido
-    data: Buffer.from('fake').toString('base64')
-  };
-
-  parser.default.mockReturnValue({ valido: false, incompleto: false });
-
-  mockMsg.hasMedia = true;
-  mockMsg.downloadMedia.mockResolvedValue(fakeMedia);
-
-  sessionManager.getSession.mockReturnValue({
-    media: [],
-    text: 'autorizar dispositivo\nLucas Lira\n00100001245\n60832730300',
-    cardCriado: false
   });
 
-  await handleMessage(mockMsg);
+  test('ignora mídia se tipo não for imagem', async () => {
+    const fakeMedia = {
+      mimetype: 'application/pdf', // tipo inválido
+      data: Buffer.from('fake').toString('base64')
+    };
 
-  expect(mockMsg.reply).not.toHaveBeenCalled(); // não deve responder
-  expect(sessionManager.updateSession).not.toHaveBeenCalled();
-});
+    parser.default.mockReturnValue({ valido: false, incompleto: false });
+
+    mockMsg.hasMedia = true;
+    mockMsg.downloadMedia.mockResolvedValue(fakeMedia);
+
+    sessionManager.getSession.mockReturnValue({
+      media: [],
+      text: 'autorizar dispositivo\nLucas Lira\n00100001245\n60832730300',
+      cardCriado: false
+    });
+
+    await handleMessage(mockMsg);
+
+    expect(mockMsg.reply).not.toHaveBeenCalled(); // não deve responder
+    expect(sessionManager.updateSession).not.toHaveBeenCalled();
+  });
 });

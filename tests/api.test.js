@@ -1,10 +1,6 @@
 import { jest } from '@jest/globals';
 import axios from 'axios';
-import {
-  searchTagId,
-  createCard,
-  attachImageToCard
-} from '../src/trello/api.js';
+import { searchTagId, createCard, attachImageToCard } from '../src/trello/api.js';
 
 jest.mock('axios');
 
