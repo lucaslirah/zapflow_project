@@ -1,4 +1,5 @@
 import analyseMessage from'../src/utils/parser.js';
+import {describe, it, expect, } from '@jest/globals'
 
 describe('Parser de mensagens', () => {
   it('reconhece estrutura válida com rótulos', () => {

@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/zapflow_project.iml" filepath="$PROJECT_DIR$/.idea/zapflow_project.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/zap_flow_project.iml" filepath="$PROJECT_DIR$/.idea/zap_flow_project.iml" />
+>>>>>>> c60ea9b8082bdae2a58b8bc3f53f130e0a031d77
     </modules>
   </component>
 </project>

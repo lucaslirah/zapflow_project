@@ -1,5 +1,6 @@
 // tests/cardBuilder.test.js
 import { createCardWithImages } from '../src/trello/cardBuilder.js';
+import {describe, it, expect, beforeEach, jest} from '@jest/globals'
 import * as api from '../src/trello/api.js';
 import config from '../config/env.js';
 
@@ -25,15 +26,28 @@ describe('createCardWithImages', () => {
 
     await createCardWithImages(mockSession);
 
-    expect(api.searchTagId).toHaveBeenCalledWith('autorizar dispositivo');
+    expect(api.searchTagId).toHaveBeenCalledWith('autorizar dispositivo', expect.objectContaining({
+        boardId: expect.any(String),
+        key: expect.any(String),
+        token: expect.any(String)
+      })
+    );
     expect(api.createCard).toHaveBeenCalledWith(expect.objectContaining({
       name: mockSession.text,
       idLabels: 'label123',
       idList: config.trello.listId,
     }));
     expect(api.attachImageToCard).toHaveBeenCalledTimes(2);
-    expect(api.attachImageToCard).toHaveBeenCalledWith('card456', mockSession.media[0]);
-    expect(api.attachImageToCard).toHaveBeenCalledWith('card456', mockSession.media[1]);
+    expect(api.attachImageToCard).toHaveBeenCalledWith(
+      'card456',
+      mockSession.media[0],
+      expect.objectContaining({ key: expect.any(String), token: expect.any(String) })
+    );
+    expect(api.attachImageToCard).toHaveBeenCalledWith(
+      'card456',
+      mockSession.media[1],
+      expect.objectContaining({ key: expect.any(String), token: expect.any(String) })
+    );
   });
 
   it('cria cartão sem etiqueta se não encontrada', async () => {
