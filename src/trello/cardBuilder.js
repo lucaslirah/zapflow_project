@@ -1,17 +1,21 @@
-import config from '../../config/env.js';
-import { searchTagId, createCard, attachImageToCard } from './api.js';
+import config from "../config/env.js";
+import { searchTagId, createCard, attachImageToCard } from "./api.js";
 
 export async function createCardWithImages(session) {
   const { key, token, boardId, listId } = config.trello;
 
-  const idEtiqueta = await searchTagId('autorizar dispositivo', { boardId, key, token });
+  const idEtiqueta = await searchTagId("autorizar dispositivo", {
+    boardId,
+    key,
+    token,
+  });
 
   const cardParams = {
     name: session.text,
-    desc: 'Solicitação de autorização de dispositivo',
+    desc: "Solicitação de autorização de dispositivo",
     idList: listId,
     key,
-    token
+    token,
   };
 
   if (idEtiqueta) cardParams.idLabels = idEtiqueta;
