@@ -1,5 +1,5 @@
 // config/env.js
-import 'dotenv/config';
+import "dotenv/config";
 
 const config = {
   trello: {
