@@ -1,8 +1,8 @@
 import analyseMessage from "../utils/parser.js";
 import {
-  getSession,
-  updateSession,
-  clearSession,
+  getConversationSession,
+  updateConversationSession,
+  clearConversationSession,
 } from "../sessions/sessionManager.js";
 import { createCardWithImages } from "../trello/cardBuilder.js";
 
@@ -10,7 +10,7 @@ import { createCardWithImages } from "../trello/cardBuilder.js";
 async function handleMessage(msg, client) {
   const sender = msg.from;
   const text = msg.body || "";
-  const session = getSession(sender);
+  const session = getConversationSession(sender);
   const data = analyseMessage(text);
 
   if (data.incompleto) {
@@ -19,7 +19,7 @@ async function handleMessage(msg, client) {
   }
 
   if (data.valido) {
-    updateSession(sender, {
+    updateConversationSession(sender, {
       text,
       triggerMsg: msg,
       cardCriado: false,
@@ -40,7 +40,7 @@ async function handleMessage(msg, client) {
     if (media && media.mimetype.startsWith("image")) {
       session.media.push(media);
 
-      updateSession(sender, session);
+      updateConversationSession(sender, session);
 
       await msg.reply(`Imagem ${session.media.length}/4 recebida.`);
 
@@ -48,7 +48,7 @@ async function handleMessage(msg, client) {
         session.cardCriado = true; // Marca que o cartão já foi criado para evitar duplicação
         await createCardWithImages(session);
         await msg.reply("✅ Cartão criado com sucesso no Trello!");
-        clearSession(sender); // Limpa a sessão após criar o cartão
+        clearConversationSession(sender); // Limpa a sessão após criar o cartão
       }
     }
   }

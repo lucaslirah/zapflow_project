@@ -1,8 +1,52 @@
-const sessions = new Map();
+import { WhatsAppClient } from "../bot/client.js";
+import qrcode from "qrcode-terminal";
 
-export function getSession(sender) {
+// ---- GESTÃO DAS CONEXÕES DO WHATSAPP (INSTÂNCIAS) ----
+const activeClients = new Map();
+
+export function startWhatsAppSession(sessionId) {
+  if (activeClients.has(sessionId)) {
+    console.log(`[${sessionId}] Sessão já existe ou está a iniciar.`);
+    return;
+  }
+  console.log(`[Manager] A iniciar a sessão: ${sessionId}`);
+  const client = new WhatsAppClient(sessionId);
+
+  client.on("qr", ({ qr }) => {
+    console.log(`[Manager] QR Code para ${sessionId} recebido.`);
+    qrcode.generate(qr, { small: true });
+  });
+
+  client.on("ready", () => {
+    console.log(`[Manager] A sessão ${sessionId} está pronta!`);
+  });
+
+  client.on("disconnected", () => {
+    console.log(
+      `[Manager] A sessão ${sessionId} foi desconectada. A remover da lista ativa.`
+    );
+    activeClients.delete(sessionId);
+  });
+
+  client.on("init_failure", () => {
+    console.log(`[Manager] Falha ao iniciar a sessão ${sessionId}.`);
+    activeClients.delete(sessionId);
+  });
+
+  activeClients.set(sessionId, client);
+  client.initialize();
+}
+
+export function getWhatsAppClient(sessionId) {
+  return activeClients.get(sessionId);
+}
+
+// ---- GESTÃO DAS SESSÕES DE CONVERSA (FLUXO DO UTILIZADOR) ----
+const conversationSessions = new Map();
+
+export function getConversationSession(sender) {
   return (
-    sessions.get(sender) || {
+    conversationSessions.get(sender) || {
       media: [],
       text: null,
       timeout: null,
@@ -12,14 +56,15 @@ export function getSession(sender) {
   );
 }
 
-export function updateSession(sender, sessionData) {
-  sessions.set(sender, { ...getSession(sender), ...sessionData });
+export function updateConversationSession(sender, sessionData) {
+  const currentSession = getConversationSession(sender);
+  conversationSessions.set(sender, { ...currentSession, ...sessionData });
 }
 
-export function clearSession(sender) {
-  if (sessions.has(sender)) {
-    const session = sessions.get(sender);
+export function clearConversationSession(sender) {
+  if (conversationSessions.has(sender)) {
+    const session = conversationSessions.get(sender);
     if (session.timeout) clearTimeout(session.timeout);
-    sessions.delete(sender);
+    conversationSessions.delete(sender);
   }
 }

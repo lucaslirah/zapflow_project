@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "jest --coverage",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon --watch src/ --ext js,json --exec \"node src/server.js\" --delay 2500"
   },
   "keywords": [],
   "author": "",
@@ -21,12 +22,13 @@
     "pg": "^8.16.3",
     "puppeteer": "^24.15.0",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.31.0"
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#main"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",
     "@babel/preset-env": "^7.28.3",
     "babel-jest": "^30.0.5",
-    "jest": "^30.0.5"
+    "jest": "^30.0.5",
+    "nodemon": "^3.1.10"
   }
 }
