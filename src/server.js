@@ -1,4 +1,3 @@
-import { createClient } from "./bot/clientInstance.js";
 // import initializeClient from "./bot/client.js";
 import express from "express";
 import configRoutes from "./routes/config.js";
