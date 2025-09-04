@@ -1,8 +1,5 @@
 // src/routes/sessions.js
 import express from "express";
-import { createClient } from "../bot/clientInstance.js";
-import { getClient } from "../bot/clientInstance.js";
-const client = getClient();
 import fs from "fs";
 import path from "path";
 import { startWhatsAppSession } from "../sessions/sessionManager.js";
@@ -47,7 +44,9 @@ router.post("/start", (req, res) => {
 
   try {
     startWhatsAppSession(sessionId);
-    res.status(200).json({ message: `A inicialização da sessão '${sessionId}' começou.` });
+    res
+      .status(200)
+      .json({ message: `A inicialização da sessão '${sessionId}' começou.` });
   } catch (error) {
     console.error("Erro ao iniciar sessão:", error);
     res.status(500).json({ error: "Falha ao iniciar a sessão." });
