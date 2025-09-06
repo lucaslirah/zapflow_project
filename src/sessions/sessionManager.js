@@ -1,16 +1,35 @@
 import { WhatsAppClient } from "../bot/client.js";
 import qrcode from "qrcode-terminal";
+import db from "../../db/connection.js";
 
 // ---- GESTÃO DAS CONEXÕES DO WHATSAPP (INSTÂNCIAS) ----
 const activeClients = new Map();
 
-export function startWhatsAppSession(sessionId) {
+export async function startWhatsAppSession(sessionId, trelloConfigName) {
   if (activeClients.has(sessionId)) {
     console.log(`[${sessionId}] Sessão já existe ou está a iniciar.`);
     return;
   }
-  console.log(`[Manager] A iniciar a sessão: ${sessionId}`);
-  const client = new WhatsAppClient(sessionId);
+
+  // Buscar configuração do Trello na base de dados
+  console.log(
+    `[Manager] A buscar configuração do Trello: ${trelloConfigName}...`
+  );
+  const trelloConfig = await db("trello_configs")
+    .where({ name: trelloConfigName })
+    .first();
+
+  if (!trelloConfig) {
+    throw new Error(
+      `[Manager] Configuração do Trello "${trelloConfigName}" não encontrada.`
+    );
+  }
+  console.log(
+    `[Manager] Configuração do Trello encontrada para o board ${trelloConfig.boardId}.`
+  );
+
+  // Iniciar o cliente do WhatsApp
+  const client = new WhatsAppClient(sessionId, trelloConfig);
 
   client.on("qr", ({ qr }) => {
     console.log(`[Manager] QR Code para ${sessionId} recebido.`);
@@ -33,7 +52,9 @@ export function startWhatsAppSession(sessionId) {
     activeClients.delete(sessionId);
   });
 
+  // Guardar a instância do cliente e sua configuração do Trello
   activeClients.set(sessionId, client);
+
   client.initialize();
 }
 

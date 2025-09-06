@@ -36,20 +36,26 @@ router.post("/reset", async (req, res) => {
 
 // endpoint para iniciar uma nova sessão do WhatsApp
 router.post("/start", (req, res) => {
-  const { sessionId } = req.body;
+  // recebe sessionId e trelloConfigName do corpo da requisição
+  const { sessionId, trelloConfigName } = req.body;
 
-  if (!sessionId) {
-    return res.status(400).json({ error: "sessionId é obrigatório." });
+  // valida se sessionId e configuracao foi fornecido
+  if (!sessionId || !trelloConfigName) {
+    return res.status(400).json({ 
+      error: "'sessionId' e 'trelloConfigName' são campos obrigatórios."
+    });
   }
 
   try {
-    startWhatsAppSession(sessionId);
+    startWhatsAppSession(sessionId, trelloConfigName);
     res
       .status(200)
-      .json({ message: `A inicialização da sessão '${sessionId}' começou.` });
+      .json({ 
+        message: `A inicialização da sessão '${sessionId}' com a configuração '${trelloConfigName}' foi iniciada.` 
+      });
   } catch (error) {
-    console.error("Erro ao iniciar sessão:", error);
-    res.status(500).json({ error: "Falha ao iniciar a sessão." });
+    console.error(`[API] Erro ao iniciar a sessão '${sessionId}':`, error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 

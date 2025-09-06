@@ -7,7 +7,7 @@ import {
 import { createCardWithImages } from "../trello/cardBuilder.js";
 
 // fluxo principal
-async function handleMessage(msg, client) {
+async function handleMessage(msg, client, trelloConfig) {
   const sender = msg.from;
   const text = msg.body || "";
   const session = getConversationSession(sender);
@@ -46,7 +46,7 @@ async function handleMessage(msg, client) {
 
       if (session.media.length === 4 && !session.cardCriado) {
         session.cardCriado = true; // Marca que o cartão já foi criado para evitar duplicação
-        await createCardWithImages(session);
+        await createCardWithImages(session, trelloConfig);
         await msg.reply("✅ Cartão criado com sucesso no Trello!");
         clearConversationSession(sender); // Limpa a sessão após criar o cartão
       }

@@ -1,8 +1,7 @@
-import config from "../config/env.js";
 import { searchTagId, createCard, attachImageToCard } from "./api.js";
 
-export async function createCardWithImages(session) {
-  const { key, token, boardId, listId } = config.trello;
+export async function createCardWithImages(session, trelloConfig) {
+  const { key, token, boardId, listId } = trelloConfig;
 
   const idEtiqueta = await searchTagId("autorizar dispositivo", {
     boardId,
