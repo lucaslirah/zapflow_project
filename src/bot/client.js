@@ -4,12 +4,7 @@ import wweb from "whatsapp-web.js";
 import { EventEmitter } from "events"; // Importa o EventEmitter
 import handleMessage from "./messageHandler.js";
 
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
-
 const { Client, LocalAuth } = wweb;
-
-puppeteer.use(StealthPlugin());
 
 // A nossa classe herda de EventEmitter para poder emitir eventos
 export class WhatsAppClient extends EventEmitter {
@@ -28,22 +23,13 @@ export class WhatsAppClient extends EventEmitter {
       `session-${this.sessionId}`
     );
 
-    //Iniciar o navegador camuflado primeiro
-    const browser = await puppeteer.launch({
-      // headless: false,
-      // executablePath:
-      //   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    console.log(`[${this.sessionId}] Navegador camuflado iniciado.`);
-
     this.client = new Client({
       authStrategy: new LocalAuth({
         clientId: this.sessionId,
         dataPath: sessionPath,
       }),
       puppeteer: {
-        browserWSEndpoint: browser.wsEndpoint(), // Conecta ao navegador existente
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
       },
     });
 
@@ -60,44 +46,21 @@ export class WhatsAppClient extends EventEmitter {
     this.client.on("disconnected", async (reason) => {
       console.log(`[${this.sessionId}] Cliente desconectado:`, reason);
 
-      try {
-        // 1. ESSENCIAL: Chamar destroy() PRIMEIRO para salvar a sessão no disco.
+      // Limpar dados de autenticação ao desconectar
+      try{
         await this.client.destroy();
-        console.log(`[${this.sessionId}] Sessão salva com sucesso.`);
-      } catch (e) {
-        console.error(
-          `[${this.sessionId}] Erro ao destruir o cliente:`,
-          e.message
-        );
+        console.log(`[${this.sessionId}] Cliente destruído com sucesso.`);
+      } catch(error) {
+        console.warn(`[${this.sessionId}] Erro ao destruir o cliente (provavelmente já estava fechado):`, error.message);
       }
 
       try {
-        // 2. Fechar o navegador que iniciámos manualmente.
-        await browser.close();
-        console.log(`[${this.sessionId}] Navegador fechado.`);
-      } catch (e) {
-        console.error(
-          `[${this.sessionId}] Erro ao fechar o navegador:`,
-          e.message
-        );
+        await fs.rm(sessionPath, { recursive: true, force: true });
+        console.log(`[${this.sessionId}] Pasta de sessão limpa com sucesso.`);
+      } catch (error) {
+        console.error(`[${this.sessionId}] Erro ao limpar a pasta de sessão:`, error);
       }
-
-      // 3. LÓGICA CONDICIONAL: Apenas limpa a pasta se o logout foi feito pelo utilizador.
-      // Isto permite que a sessão seja restaurada se o servidor apenas reiniciar.
-      if (reason === "LOGOUT" || reason === "UNPAIRED") {
-        try {
-          await fs.rm(sessionPath, { recursive: true, force: true });
-          console.log(
-            `[${this.sessionId}] Pasta de sessão limpa devido a logout.`
-          );
-        } catch (error) {
-          console.error(
-            `[${this.sessionId}] Erro ao limpar a pasta de sessão:`,
-            error
-          );
-        }
-      }
-
+      
       this.emit("disconnected", { sessionId: this.sessionId, reason });
     });
 
@@ -111,7 +74,6 @@ export class WhatsAppClient extends EventEmitter {
       await this.client.initialize();
     } catch (error) {
       console.error(`[${this.sessionId}] Falha na inicialização:`, error);
-      await browser.close(); // Garante que o navegador feche em caso de erro
       this.emit("init_failure", { sessionId: this.sessionId, error });
     }
   }
