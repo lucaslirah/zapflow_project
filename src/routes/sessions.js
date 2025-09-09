@@ -1,36 +1,33 @@
 // src/routes/sessions.js
 import express from "express";
-import fs from "fs";
-import path from "path";
-import { startWhatsAppSession } from "../sessions/sessionManager.js";
+import {
+  startWhatsAppSession,
+  getSessionStatus,
+} from "../sessions/sessionManager.js";
+import { resetWhatsAppSession } from "../sessions/sessionManager.js";
+import { stopWhatsAppSession } from "../sessions/sessionManager.js";
 
 const router = express.Router();
 
 // endpoint para verificar o status da sessão
-router.get("/status", (req, res) => {
-  const isReady = client.info?.wid ? true : false;
-  res.status(200).json({ status: isReady ? "connected" : "disconnected" });
+router.get("/status/:sessionId", (req, res) => {
+  const status = getSessionStatus(req.params.sessionId);
+  res.status(200).json({ status });
 });
 
 // endpoint para resetar a sessão (deletar dados de autenticação)
-router.post("/reset", async (req, res) => {
+router.post("/reset/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
   try {
-    const authPath = path.resolve(".wwebjs_auth");
-    const cachePath = path.resolve(".wwebjs_cache");
-
-    if (fs.existsSync(authPath))
-      fs.rmSync(authPath, { recursive: true, force: true });
-    if (fs.existsSync(cachePath))
-      fs.rmSync(cachePath, { recursive: true, force: true });
-
-    createClient(); // reinicializa o cliente
-
-    res
-      .status(200)
-      .json({ message: "Sessão resetada. Escaneie o QR novamente." });
+    await resetWhatsAppSession(sessionId);
+    res.status(200).json({ message: `Sessão '${sessionId}' resetada.` });
   } catch (err) {
-    console.error("Erro ao resetar sessão:", err);
-    res.status(500).json({ error: "Erro ao resetar sessão" });
+    console.error(
+      `[Reset] Erro ao resetar sessão '${sessionId}':`,
+      err.message
+    );
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -41,21 +38,35 @@ router.post("/start", (req, res) => {
 
   // valida se sessionId e configuracao foi fornecido
   if (!sessionId || !trelloConfigName) {
-    return res.status(400).json({ 
-      error: "'sessionId' e 'trelloConfigName' são campos obrigatórios."
+    return res.status(400).json({
+      error: "'sessionId' e 'trelloConfigName' são campos obrigatórios.",
     });
   }
 
   try {
     startWhatsAppSession(sessionId, trelloConfigName);
-    res
-      .status(200)
-      .json({ 
-        message: `A inicialização da sessão '${sessionId}' com a configuração '${trelloConfigName}' foi iniciada.` 
-      });
+    res.status(200).json({
+      message: `A inicialização da sessão '${sessionId}' com a configuração '${trelloConfigName}' foi iniciada.`,
+    });
   } catch (error) {
-    console.error(`[API] Erro ao iniciar a sessão '${sessionId}':`, error.message);
+    console.error(
+      `[API] Erro ao iniciar a sessão '${sessionId}':`,
+      error.message
+    );
     res.status(500).json({ error: error.message });
+  }
+});
+
+// endpoint para parar uma sessão do WhatsApp
+router.post("/stop/:sessionId", (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    stopWhatsAppSession(sessionId);
+    res.status(200).json({ message: `Sessão '${sessionId}' parada com sucesso.` });
+  } catch (err) {
+    console.error(`[Stop] Erro ao parar sessão '${sessionId}':`, err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 

@@ -1,11 +1,16 @@
 import { WhatsAppClient } from "../bot/client.js";
 import qrcode from "qrcode-terminal";
 import db from "../../db/connection.js";
+import path from "path";
+import fs from "fs";
 
 // ---- GESTÃO DAS CONEXÕES DO WHATSAPP (INSTÂNCIAS) ----
 const activeClients = new Map();
+const sessionStatus = new Map(); // sessionId → "connected" | "disconnected" | "starting"
 
 export async function startWhatsAppSession(sessionId, trelloConfigName) {
+  sessionStatus.set(sessionId, "starting");
+
   if (activeClients.has(sessionId)) {
     console.log(`[${sessionId}] Sessão já existe ou está a iniciar.`);
     return;
@@ -38,17 +43,24 @@ export async function startWhatsAppSession(sessionId, trelloConfigName) {
 
   client.on("ready", () => {
     console.log(`[Manager] A sessão ${sessionId} está pronta!`);
+    sessionStatus.set(sessionId, "connected");
   });
 
   client.on("disconnected", () => {
     console.log(
       `[Manager] A sessão ${sessionId} foi desconectada. A remover da lista ativa.`
     );
+
+    sessionStatus.set(sessionId, "disconnected");
+
     activeClients.delete(sessionId);
   });
 
   client.on("init_failure", () => {
     console.log(`[Manager] Falha ao iniciar a sessão ${sessionId}.`);
+
+    sessionStatus.set(sessionId, "disconnected");
+
     activeClients.delete(sessionId);
   });
 
@@ -58,8 +70,63 @@ export async function startWhatsAppSession(sessionId, trelloConfigName) {
   client.initialize();
 }
 
-export function getWhatsAppClient(sessionId) {
-  return activeClients.get(sessionId);
+// Função para obter o status da sessão
+export function getSessionStatus(sessionId) {
+  return sessionStatus.get(sessionId) || "not_found";
+}
+
+// Função para resetar a sessão (deletar dados de autenticação)
+export async function resetWhatsAppSession(sessionId) {
+  const authPath = path.resolve(`.wwebjs_auth/session-${sessionId}`);
+  const cachePath = path.resolve(`.wwebjs_cache/session-${sessionId}`);
+
+  // 1. Remover cliente da memória
+  const client = activeClients.get(sessionId);
+  if (client) {
+    // Não existe client.destroy(), então apenas remove da memória
+    activeClients.delete(sessionId);
+  }
+
+  // 2. Tentar apagar arquivos da sessão, ignorando os travados
+  try {
+    const tryDeleteFolder = async (folderPath) => {
+      if (fs.existsSync(folderPath)) {
+        const files = fs.readdirSync(folderPath);
+        for (const file of files) {
+          const filePath = path.join(folderPath, file);
+          try {
+            await fs.promises.rm(filePath, { recursive: true, force: true });
+          } catch (err) {
+            console.warn(
+              `[Reset] Não foi possível apagar ${filePath}: ${err.message}`
+            );
+          }
+        }
+      }
+    };
+
+    await tryDeleteFolder(authPath);
+    await tryDeleteFolder(cachePath);
+  } catch (err) {
+    throw new Error(`Erro ao apagar arquivos da sessão: ${err.message}`);
+  }
+
+  // 3. Atualizar status
+  sessionStatus.set(sessionId, "disconnected");
+}
+
+// Função para parar uma sessão 
+export function stopWhatsAppSession(sessionId) {
+  const client = activeClients.get(sessionId);
+
+  if (client) {
+    // Se quiser, pode tentar client.logout() ou apenas remover da memória
+    activeClients.delete(sessionId);
+    sessionStatus.set(sessionId, "disconnected");
+    console.log(`[Manager] Sessão '${sessionId}' foi parada manualmente.`);
+  } else {
+    console.log(`[Manager] Sessão '${sessionId}' não estava ativa.`);
+  }
 }
 
 // ---- GESTÃO DAS SESSÕES DE CONVERSA (FLUXO DO UTILIZADOR) ----
