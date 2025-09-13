@@ -3,9 +3,10 @@ import express from "express";
 import {
   startWhatsAppSession,
   getSessionStatus,
+  resetWhatsAppSession,
+  stopWhatsAppSession,
+  getSessionQRCode
 } from "../sessions/sessionManager.js";
-import { resetWhatsAppSession } from "../sessions/sessionManager.js";
-import { stopWhatsAppSession } from "../sessions/sessionManager.js";
 
 const router = express.Router();
 
@@ -15,7 +16,18 @@ router.get("/status/:sessionId", (req, res) => {
   res.status(200).json({ status });
 });
 
-// endpoint para resetar a sessão (deletar dados de autenticação)
+// endpoint para obter o QR code da sessão
+router.get("/qr/:sessionId", (req, res) => {
+  const qr = getSessionQRCode(req.params.sessionId);
+
+  if (!qr) {
+    return res.status(404).json({ error: "QR code não disponível." });
+  }
+
+  res.status(200).json({ qr });
+});
+
+// WIP endpoint para resetar a sessão (deletar dados de autenticação)
 router.post("/reset/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
@@ -57,7 +69,7 @@ router.post("/start", (req, res) => {
   }
 });
 
-// endpoint para parar uma sessão do WhatsApp
+// WIP endpoint para parar uma sessão do WhatsApp
 router.post("/stop/:sessionId", (req, res) => {
   const { sessionId } = req.params;
 

@@ -7,6 +7,7 @@ import fs from "fs";
 // ---- GESTÃO DAS CONEXÕES DO WHATSAPP (INSTÂNCIAS) ----
 const activeClients = new Map();
 const sessionStatus = new Map(); // sessionId → "connected" | "disconnected" | "starting"
+const qrCodes = new Map(); // sessionId → qrCodeData
 
 export async function startWhatsAppSession(sessionId, trelloConfigName) {
   sessionStatus.set(sessionId, "starting");
@@ -39,6 +40,7 @@ export async function startWhatsAppSession(sessionId, trelloConfigName) {
   client.on("qr", ({ qr }) => {
     console.log(`[Manager] QR Code para ${sessionId} recebido.`);
     qrcode.generate(qr, { small: true });
+    qrCodes.set(sessionId, qr);
   });
 
   client.on("ready", () => {
@@ -74,8 +76,12 @@ export async function startWhatsAppSession(sessionId, trelloConfigName) {
 export function getSessionStatus(sessionId) {
   return sessionStatus.get(sessionId) || "not_found";
 }
+// Função para obter o QR code da sessão
+export function getSessionQRCode(sessionId) {
+  return qrCodes.get(sessionId);
+}
 
-// Função para resetar a sessão (deletar dados de autenticação)
+// WIP Função para resetar a sessão (deletar dados de autenticação)
 export async function resetWhatsAppSession(sessionId) {
   const authPath = path.resolve(`.wwebjs_auth/session-${sessionId}`);
   const cachePath = path.resolve(`.wwebjs_cache/session-${sessionId}`);
@@ -83,11 +89,10 @@ export async function resetWhatsAppSession(sessionId) {
   // 1. Remover cliente da memória
   const client = activeClients.get(sessionId);
   if (client) {
-    // Não existe client.destroy(), então apenas remove da memória
     activeClients.delete(sessionId);
   }
 
-  // 2. Tentar apagar arquivos da sessão, ignorando os travados
+  // 2. Apagar arquivos da sessão
   try {
     const tryDeleteFolder = async (folderPath) => {
       if (fs.existsSync(folderPath)) {
@@ -97,9 +102,7 @@ export async function resetWhatsAppSession(sessionId) {
           try {
             await fs.promises.rm(filePath, { recursive: true, force: true });
           } catch (err) {
-            console.warn(
-              `[Reset] Não foi possível apagar ${filePath}: ${err.message}`
-            );
+            console.warn(`[Reset] Arquivo travado, ignorando: ${err.message}`);
           }
         }
       }
@@ -111,11 +114,12 @@ export async function resetWhatsAppSession(sessionId) {
     throw new Error(`Erro ao apagar arquivos da sessão: ${err.message}`);
   }
 
-  // 3. Atualizar status
+  // 3. Atualizar status e limpar QR
   sessionStatus.set(sessionId, "disconnected");
+  qrCodes.delete(sessionId);
 }
 
-// Função para parar uma sessão 
+// WIP Função para parar uma sessão
 export function stopWhatsAppSession(sessionId) {
   const client = activeClients.get(sessionId);
 

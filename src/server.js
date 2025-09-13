@@ -2,11 +2,13 @@
 import express from "express";
 import configRoutes from "./routes/config.js";
 import sessionRoutes from "./routes/sessions.js";
+import cors from "cors";
 
 // Configuração do servidor
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.use(express.json());
+app.use(cors());
 
 // usar as rotas de configuração
 app.use("/config", configRoutes);
