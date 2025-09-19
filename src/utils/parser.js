@@ -1,12 +1,18 @@
 // Analisador flexível
 function analyseMessage(texto) {
+  // expressão regular para detectar o título esperado
+  // Busca por "autorizar" OU "liberar", seguido opcionalmente por "novo ",
+  // e terminando com "dispositivo".
+  const regexTitulo = /(autorizar|liberar)\s+(novo\s+)?dispositivo/;
+
   const normalizado = texto.toLowerCase().replace(/[^\w\s]/gi, "");
   const linhas = normalizado
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const temTitulo = linhas.some((l) => l.includes("autorizar dispositivo"));
+  // <-- 2. Usamos a nova regex aqui
+  const temTitulo = linhas.some((l) => regexTitulo.test(l));
 
   let nome = null;
   let conta = null;
@@ -16,7 +22,7 @@ function analyseMessage(texto) {
     // Nome com ou sem rótulo
     if (
       !nome &&
-      !/autorizar dispositivo/.test(linha) &&
+      !regexTitulo.test(linha) && // <-- 3. E usamos a mesma regex aqui também
       (/nome/.test(linha) || /^[a-zà-ÿ\s]{5,}$/.test(linha))
     ) {
       const partes = linha
