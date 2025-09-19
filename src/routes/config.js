@@ -18,6 +18,21 @@ router.get("/trello", async (req, res) => {
   }
 });
 
+// Endpoint para obter uma configuração por nome
+router.get("/trello/:name", async (req, res) => {
+  const { name } = req.params;
+  try {
+    const config = await db("trello_configs").where({ name }).first();
+    if (!config) {
+      return res.status(404).json({ error: "Configuração não encontrada." });
+    }
+    res.status(200).json(config);
+  } catch (err) {
+    console.error("Erro ao buscar configuração:", err);
+    res.status(500).json({ error: "Erro interno ao buscar configuração." });
+  }
+});
+
 // Endpoint para criar uma nova configuração
 router.post("/trello", async (req, res) => {
   const { name, key, token, boardId, listId } = req.body;
