@@ -5,8 +5,9 @@ import {
   getSessionStatus,
   resetWhatsAppSession,
   stopWhatsAppSession,
-  getSessionQRCode
+  getSessionQRCode,
 } from "../sessions/sessionManager.js";
+import db from "../../db/connection.js";
 
 const router = express.Router();
 
@@ -69,16 +70,25 @@ router.post("/start", (req, res) => {
   }
 });
 
-// WIP endpoint para parar uma sessão do WhatsApp
-router.post("/stop/:sessionId", (req, res) => {
+// endpoint para parar uma sessão do WhatsApp
+router.post("/stop/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
+  console.log(`[API STOP] Antes: status = ${getSessionStatus(sessionId)}`);
 
   try {
     stopWhatsAppSession(sessionId);
-    res.status(200).json({ message: `Sessão '${sessionId}' parada com sucesso.` });
+
+    // Se estiver usando persistência em DB:
+    await db("whatsapp_sessions")
+      .where({ sessionId })
+      .update({ status: "disconnected", updated_at: db.fn.now() });
+
+    console.log(`[API STOP] Depois: status = ${getSessionStatus(sessionId)}`);
+
+    return res.status(200).json({ message: `Sessão '${sessionId}' parada.` });
   } catch (err) {
-    console.error(`[Stop] Erro ao parar sessão '${sessionId}':`, err.message);
-    res.status(500).json({ error: err.message });
+    console.error(`[API STOP] Erro:`, err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
