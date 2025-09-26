@@ -11,15 +11,17 @@ Uma API robusta construída em Node.js para gerenciar sessões do WhatsApp Web, 
 
 ## 📝 Visão Geral do Projeto
 
-O **ZapFlow** é o backend de uma solução completa para automação de conversas no WhatsApp. Esta API RESTful gerencia o ciclo de vida de múltiplas sessões do WhatsApp, desde a autenticação via QR Code até o monitoramento de status, tudo de forma programática. Foi projetada para ser consumida por um painel de controle (frontend) ou qualquer outra aplicação que necessite interagir com o WhatsApp.
+O **ZapFlow** é o backend de uma solução completa para automação de fluxos de trabalho. Seu principal objetivo é **processar mensagens estruturadas do WhatsApp e convertê-las automaticamente em cartões detalhados no Trello**, incluindo anexos. A API gerencia todo o ciclo de vida das sessões do WhatsApp para garantir que esta ponte de comunicação esteja sempre ativa e funcional.
 
 ## ✨ Funcionalidades Principais
 
--   **Gerenciamento de Sessões:** Inicie, reinicie e verifique o status de múltiplas sessões de WhatsApp de forma independente.
--   **Autenticação via QR Code:** Gere QR Codes para autenticação e os disponibilize através de um endpoint da API.
--   **Gerenciamento de Configurações:** Salve e gerencie configurações de integração (como chaves de API do Trello), associando-as a sessões específicas.
--   **Estrutura Escalável:** A arquitetura do projeto é modular, facilitando a adição de novas funcionalidades e integrações.
--   **Persistência de Dados:** Utiliza um banco de dados SQLite para armazenar configurações e informações relevantes, com migrações gerenciadas pelo Knex.js.
+-   **Automação de Fluxos de Trabalho:** Converte automaticamente mensagens estruturadas do WhatsApp em cartões no Trello, incluindo o texto da solicitação, etiquetas e anexos de imagem.
+-   **Gerenciamento de Sessões:** Inicie, reinicie e verifique o status de múltiplas sessões do WhatsApp de forma independente.
+-   **Autenticação via QR Code:** Gere e disponibilize QR Codes através de um endpoint da API para uma conexão rápida.
+-   **Gerenciamento de Configurações:** Salve e associe de forma segura as credenciais de API do Trello a sessões específicas do WhatsApp.
+-   **Estrutura Customizável e Esclável:** A lógica de processamento de mensagens é centralizada e pode ser facilmente adaptada para diferentes formatos de solicitação, além da arquitetura do projeto ser modular, facilitando a adição de novas funcionalidades e integrações.
+-   **Persistência de Dados:** Utiliza um banco de dados PostgreSQL (AWS RDS) para garantir a integridade dos dados.
+
 
 ## 💻 Tecnologias e Ferramentas
 
@@ -165,6 +167,70 @@ Configuração recomendada para deploy ou para simular um ambiente de produção
 
 > **Nota Importante sobre o Puppeteer:**
 > A biblioteca `whatsapp-web.js` fará o download automático de uma versão compatível do Chromium na primeira vez que você instalar as dependências (`npm install`). Este download pode ter entre 170MB e 280MB. Em alguns sistemas operacionais (especialmente servidores Linux sem interface gráfica), pode ser necessário instalar dependências adicionais para o Chromium funcionar corretamente.
+
+## ⚙️ Configuração e Uso Essencial
+
+Para que o ZapFlow funcione corretamente, é crucial configurar a integração com o Trello e entender como as mensagens do WhatsApp são processadas.
+
+### 1. Obtendo as Credenciais do Trello
+
+Para que a API possa criar cartões no seu quadro, você precisa fornecer 4 informações: `API Key`, `API Token`, `Board ID` e `List ID`. Siga os passos abaixo para obtê-las.
+
+**Passo A: Obter a Chave (API Key) e o Token**
+
+1.  Acesse a página de desenvolvimento de aplicativos do Trello: **[https://trello.com/app-key](https://trello.com/app-key)**.
+2.  Você verá sua **"Chave" (API Key)** pessoal. Copie-a.
+3.  Na mesma página, clique no link para **"gerar manualmente um Token"**.
+4.  Na tela seguinte, clique em **"Permitir"** para autorizar a aplicação.
+5.  O Trello exibirá seu **"Token"**. Copie-o também.
+
+**Passo B: Obter o ID do Quadro (Board ID)**
+
+1.  Abra o quadro do Trello que você deseja usar no seu navegador.
+2.  A URL será algo como: `https://trello.com/b/ABC12345/NomeDoSeuQuadro`.
+3.  Adicione `.json` ao final da URL e pressione Enter: `https://trello.com/b/ABC12345/NomeDoSeuQuadro.json`.
+4.  O navegador exibirá os dados do quadro em formato JSON. O **`id`** do quadro é um dos primeiros campos que aparecem no topo do arquivo. Copie-o.
+
+**Passo C: Obter o ID da Lista (List ID)**
+
+1.  Ainda na página `.json` do seu quadro.
+2.  Use a função de busca do navegador (`Ctrl + F` ou `Cmd + F`) e procure pelo **nome exato da lista** onde os cartões devem ser criados (ex: "Solicitações", "A Fazer").
+3.  Você encontrará um objeto com o nome da lista. Dentro desse objeto, haverá um campo **`id`**. Copie este ID.
+
+**Passo D: Salvar as Credenciais no ZapFlow**
+
+Com as 4 informações em mãos (`key`, `token`, `boardId`, `listId`), utilize o frontend da aplicação ou um cliente de API (como Insomnia ou Postman) para enviá-las ao endpoint `POST /config` do seu backend.
+
+### 2. Formato da Mensagem no WhatsApp
+
+Para que o bot identifique e processe uma solicitação corretamente, a mensagem enviada no WhatsApp precisa seguir uma estrutura pré-definida. Isso evita que o bot responda a conversas casuais e garante que todas as informações necessárias para criar o cartão no Trello sejam fornecidas.
+
+O `messageHandler` padrão está configurado para identificar solicitações de **autorização de dispositivo**.
+
+**Exemplo de formato esperado:**
+
+> **Assunto:** Autorização de Novo Dispositivo
+> **Usuário:** Nome Completo do Solicitante (email@empresa.com)
+> **Dispositivo:** Modelo do Dispositivo (ex: Notebook Dell Vostro)
+> **Justificativa:** Descrição do motivo pelo qual o acesso é necessário.
+
+-   **Anexos:** O usuário pode (e deve) enviar capturas de tela ou fotos relevantes junto com a mensagem de texto. O bot está preparado para capturar essas imagens e anexá-las ao cartão do Trello.
+
+### 3. Como Customizar o Processamento de Mensagens
+
+A lógica que interpreta o formato da mensagem acima é totalmente customizável para atender a outras necessidades (ex: abertura de chamados, relatório de bugs, etc.).
+
+O código responsável por essa inteligência está centralizado no arquivo:
+
+**`src/bot/messageHandler.js`** (ou um arquivo de serviço semelhante)
+
+Para adaptar o bot:
+
+1.  **Navegue** até o arquivo `messageHandler.js`.
+2.  **Modifique** a lógica de parsing (provavelmente utilizando expressões regulares - RegEx) para identificar as palavras-chave e a estrutura da sua nova finalidade.
+3.  **Ajuste** a forma como os dados extraídos são organizados para serem enviados à função que cria o cartão no Trello (`createCard`).
+
+Esta flexibilidade permite que qualquer desenvolvedor adapte o ZapFlow para automatizar diferentes processos de negócio.
 
 ## Endpoints da API
 
