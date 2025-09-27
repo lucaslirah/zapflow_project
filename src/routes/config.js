@@ -37,6 +37,20 @@ router.get("/trello/:name", async (req, res) => {
 router.post("/trello", async (req, res) => {
   const { name, key, token, boardId, listId } = req.body;
 
+  // verifica se todos os campos obrigatórios foram fornecidos
+  if (!name || !key || !token || !boardId || !listId) {
+    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+  }
+
+  //verifica se já existe uma configuração com o mesmo nome
+  const existingConfig = await db("trello_configs").where({ name }).first();
+  if (existingConfig) {
+    return res
+      .status(400)
+      .json({ error: "Já existe uma configuração com esse nome." });
+  }
+
+  //insere a nova configuração no banco de dados
   try {
     const [config] = await db("trello_configs")
       .insert({ name, key, token, boardId, listId })
